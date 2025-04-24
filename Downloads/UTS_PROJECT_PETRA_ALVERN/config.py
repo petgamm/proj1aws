@@ -1,5 +1,5 @@
 
-MYSQL_HOST = 'localhost'
-MYSQL_USER = 'root'
-MYSQL_PASSWORD = '#GarudaPancasila1'
+MYSQL_HOST = 'database-1.clghqa1acknd.us-east-1.rds.amazonaws.com'
+MYSQL_USER = 'admin'
+MYSQL_PASSWORD = 'database-1'
 MYSQL_DB = 'carrent'
