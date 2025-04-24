@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Histori Transaksi - Carpy</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fa;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #007bff;
+      padding: 15px 50px;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 50px auto;
+      padding: 0 20px;
+    }
+
+    .history-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+  overflow: hidden;
+  padding: 10px;
+}
+
+    .history-card img {
+      width: 250px;
+      height: auto;
+      object-fit: cover;
+    }
+
+    .history-details {
+      flex: 1;
+      padding: 20px;
+    }
+
+    .history-details h3 {
+      margin: 0 0 10px;
+    }
+    .history-status {
+  width: 150px; /* Lebar status */
+  text-align: center;
+}
+
+    .status {
+        padding: 10px;
+  border-radius: 20px;
+  color: white;
+  display: inline-block;
+  font-weight: bold;
+    }
+
+    .status-selesai { background-color: #4CAF50; }   /* Hijau */
+    .status-ditolak { background-color: #E53935; }   /* Merah */
+    .status-menunggu { background-color: #FBC02D; }  /* Kuning */
+    .status-disewa { background-color: #2196F3; }    /* Biru */
+    .status-batal { background-color: grey; }
+    .status-disetujui { background-color: #4CAF50; }
+
+    .history-actions {
+      margin-top: 20px;
+    }
+
+    .history-actions button {
+      padding: 10px 20px;
+      background: #E53935;
+      border: none;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-box {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .modal-box button {
+      margin: 10px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .no-history {
+      text-align: center;
+      font-size: 18px;
+      color: #777;
+      margin-top: 100px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      background-color: #007bff;
+      color: white;
+      margin-top: 50px;
+    }
+
+  </style>
+</head>
+<body>
+
+<header>
+  <h2>Histori Pemesanan</h2>
+  <a href="/" style="color:white;">&larr; Kembali</a>
+</header>
+
+<div class="container">
+
+  {% if history|length == 0 %}
+    <div class="no-history">Belum ada histori pemesanan.</div>
+  {% endif %}
+
+  {% if history %}
+  {% for item in history %}
+  <div class="history-card">
+    <img src="{{ url_for('static', filename=item['image_url']) }}" alt="Mobil">
+    <div class="history-details">
+      <h3>{{ item['brand'] }} {{ item['model'] }}</h3>
+      <p>Transmisi: {{ item['transmission'] }} | Tahun: {{ item['year'] }} | Kursi: {{ item['seats'] }}</p>
+      <p>Kota: {{ item['location'] }}</p>
+      <p>Tanggal & Jam Sewa: {{ item['start_date'].strftime('%d-%m-%Y %H:%M') }} - {{ item['end_date'].strftime('%d-%m-%Y %H:%M') }}</p>
+
+      {% set status_map = {
+        'completed': ('Selesai', 'status-selesai'),
+        'rejected': ('Ditolak', 'status-ditolak'),
+        'pending': ('Menunggu Persetujuan', 'status-menunggu'),
+        'ongoing': ('Sedang Disewa', 'status-disewa'),
+        'canceled': ('Dibatalkan', 'status-ditolak'),
+        'approved': ('Disetujui, Menunggu Tanggal Sewa', 'status-disetujui')
+    } %}
+    
+    {% if item.status in status_map %}
+        {% set label, class_name = status_map[item.status] %}
+        <span class="status {{ class_name }}">{{ label }}</span>
+    {% else %}
+        <span class="status status-unknown">Status Tidak Dikenal</span>
+    {% endif %}
+    
+
+    {% if item.status not in ['completed', 'rejected', 'canceled', 'ongoing'] %}
+    <div class="history-actions">
+        <button onclick="openModal({{ item.booking_id }})">Batalkan</button>
+    </div>
+  {% endif %}
+  
+    </div>
+  </div>
+  {% endfor %}
+{% else %}
+  <p style="text-align:center; margin-top:50px;">Tidak ada history penyewaan.</p>
+{% endif %}
+
+</div>
+
+<!-- Modal Konfirmasi -->
+<div class="modal-overlay" id="cancelModal">
+  <div class="modal-box">
+    <h3>Yakin ingin membatalkan pemesanan?</h3>
+    <form method="POST" action="/cancel_booking">
+      <input type="hidden" id="cancelId" name="booking_id">
+      <button type="submit" style="background:#E53935; color:white;">Ya, Batalkan</button>
+      <button type="button" onclick="closeModal()">Tutup</button>
+    </form>
+  </div>
+</div>
+
+<footer>
+  &copy; 2025 Carpy - Rental Mobil
+</footer>
+
+<script>
+  function openModal(id) {
+    document.getElementById('cancelId').value = id;
+    document.getElementById('cancelModal').style.display = 'flex';
+  }
+  function closeModal() {
+    document.getElementById('cancelModal').style.display = 'none';
+  }
+</script>
+<script>
+    window.openModal = function(id) {
+      console.log("Booking ID:", id);  // Debugging
+      document.getElementById('cancelId').value = id;
+      document.getElementById('cancelModal').style.display = 'flex';
+    };
+  </script>
+
+</body>
+</html>

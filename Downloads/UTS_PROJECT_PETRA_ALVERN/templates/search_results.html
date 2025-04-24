@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Hasil Pencarian Mobil</title>
+  <style>
+        * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body { font-family: Arial, sans-serif; height: 100%; margin: 0px; background-color: #f9f9f9; padding-top: 70px;  display: flex;
+        flex-direction: column;min-height: 100vh;}
+    .filter-box { border: 1px solid #ccc; padding: 15px; border-radius: 8px; margin-bottom: 20px; background-color: #fff; }
+    .container { display: flex; flex-direction: column; gap: 20px; max-width: 900px; margin: auto;  flex-grow: 1;}
+    .car-card { background-color: white; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); display: flex; overflow: hidden; }
+    .car-card img { width: 300px; object-fit: cover; }
+    .car-details { padding: 20px; flex: 1; }
+    .car-details h2 { margin: 0; font-size: 24px; }
+    .car-details p { margin: 5px 0; color: #555; }
+    .price { color: #E53935; font-weight: bold; margin-top: 10px; font-size: 18px; }
+    .rent-btn { margin-top: 15px; padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; display: inline-block; }
+    .step { display: none; }
+    .step.active { display: block; }
+    
+    html, body {
+  height: 100%;
+}
+    .wrapper {
+        min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+}
+
+
+
+    .info-filter-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  transition: all 0.3s ease-in-out;
+  gap: 15px;
+}
+
+/* Info Box */
+.info-box {
+    background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-left: 5px solid #007bff;
+  transition: all 0.3s ease-in-out;
+}
+
+/* Filter Box */
+.filter-box {
+  background: #ffffff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+  flex: 2;
+  min-width: 300px;
+}
+
+/* Grid untuk filter */
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+/* Style input & dropdown */
+.filter-box select, 
+.filter-box input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  transition: 0.3s;
+}
+
+.filter-box select:focus,
+.filter-box input:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.3);
+}
+
+/* Responsif untuk mobile */
+@media (max-width: 768px) {
+  .info-filter-container {
+    flex-direction: column;
+  }
+}
+
+.info-box p {
+  margin: 0;
+  font-size: 14px;
+  color: #555;
+}
+
+.info-box p strong {
+  color: #333;
+}
+
+.edit-link {
+  margin-top: 10px;
+  padding: 6px 12px;
+  background: #007bff;
+  color: white;
+  font-size: 14px;
+  text-decoration: none;
+  border-radius: 5px;
+  display: inline-block;
+  text-align: center;
+  transition: background 0.3s ease;
+}
+
+.edit-link:hover {
+  background: #0056b3;
+}
+    /* HEADER */
+    header {
+      background-color: #007bff;
+      padding: 15px 50px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 50px;
+      z-index: 1000;
+    }
+    header h1 {
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .header-buttons button, .hamburger-btn {
+      margin-left: 0%;
+      padding: 8px 16px;
+      background-color: white;
+      color: #007bff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .header-buttons button:hover, .hamburger-btn:hover {
+      background-color: #e0e0e0;
+    }
+    
+    /* FOOTER */
+    footer {
+  background-color: #007bff;
+  color: white;
+  text-align: center;
+  padding: 15px 0;
+  margin-top: 100px; ooter tetap di bawah */
+}
+    /* MODAL OVERLAY LOGIN/REGISTER */
+    #overlay, #modal-box {
+  display: flex;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+}
+
+#overlay.show, #modal-box.show {
+  opacity: 1;
+  visibility: visible;
+}
+    #modal-box {
+      display: none;
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      z-index: 1001;
+      width: 300px;
+      text-align: center;
+    }
+    #modal-box.show {
+  display: flex;
+}
+
+    #modal-box input {
+      width: 90%;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    #modal-box button {
+      padding: 8px 15px;
+      margin-top: 10px;
+      border: none;
+      background-color: #007bff;
+      color: white;
+      border-radius: 8px;
+    }
+    .hamburger-btn {
+        background: none;
+  border: none;
+  font-size: 15px;    /* Ukuran icon */
+  color: white;
+  cursor: pointer;
+  padding: 2px 4px;   /* Supaya gak kegedean */
+  margin-left: 5px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+    }
+    .hamburger-btn:hover {
+  background-color: rgba(255,255,255,0.2); /* Biar ada efek hover */
+}
+
+
+#sidebar {
+  position: fixed;
+  top: 70px;
+  right: 0;
+  width: 250px;
+  height: 100%;
+  background-color: white;
+  box-shadow: -2px 0 10px rgba(0,0,0,0.2);
+  z-index: 1500;
+  padding: 20px;
+  transform: translateX(100%);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  opacity: 0;
+  visibility: hidden;
+}
+
+#sidebar.show {
+    display: block;
+  transform: translateX(0);
+  opacity: 1;
+  visibility: visible;
+}
+
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Carpy</h1>
+    <div class="header-buttons">
+      {% if session.get('user_id') %}
+      <div style="display: flex; align-items: center;">
+        <span style="margin-right:10px;">Halo, {{ session.get('username') }}</span>
+        <button onclick="openSidebar()" class="hamburger-btn">☰</button>
+      </div>
+      {% else %}
+        <button onclick="openModal('login')">Login</button>
+        <button onclick="openRegisterModal()">Register</button>
+      {% endif %}
+    </div>
+  </header>
+
+  <div class="wrapper">
+    <div class="main-content">
+
+  <div id="sidebar" style="display:none; position:fixed; top:0; right:0; width:250px; height:100%; background-color:white; box-shadow:-2px 0 10px rgba(0,0,0,0.2); z-index:2000; padding:20px; transition:0.3s;">
+    <div style="font-weight:bold; margin-bottom:20px;">{{ session.get('username') }}</div>
+    <ul style="list-style:none; padding:0;">
+      <li style="margin-bottom:15px;"><a href="/profile">Profile</a></li>
+      <li style="margin-bottom:15px;"><a href="/history">Histori Transaksi</a></li>
+    </ul>
+    <form method="post" action="{{ url_for('logout') }}">
+      <button type="submit" style="margin-top:30px; background:#E53935; color:white; border:none; padding:10px 20px; border-radius:8px;">Logout</button>
+    </form>
+    <button onclick="closeSidebar()" style="position:absolute; top:10px; right:10px; background:none; border:none; font-size:20px;">&times;</button>
+  </div>
+  
+  <div class="info-filter-container">
+    <!-- Info Box -->
+    <div class="info-box">
+        <p><strong>📍 Lokasi:</strong> {{ location }}</p>
+        <p><strong>📅 Tanggal Mulai:</strong> {{ start_date }} Jam {{ start_time }}</p>
+        <p><strong>⏳ Tanggal Selesai:</strong> {{ end_date }} Jam {{ end_time }}</p>
+        <a href="{{ url_for('landing_page') }}" class="edit-link">🔄 Ubah Lokasi / Tanggal</a>
+      </div>
+  
+    <!-- Filter Box -->
+    <div class="filter-box">
+      <h3>Filter Tambahan</h3>
+      <form method="get" action="{{ url_for('search_results') }}">
+        <input type="hidden" name="location" value="{{ location }}">
+        <input type="hidden" name="start_date" value="{{ start_date }}">
+        <input type="hidden" name="start_time" value="{{ start_time }}">
+        <input type="hidden" name="end_date" value="{{ end_date }}">
+        <input type="hidden" name="end_time" value="{{ end_time }}">
+  
+        <div class="filter-grid">
+          <select name="category" onchange="this.form.submit()">
+            <option value="">Kategori</option>
+            {% for cat in categories %}
+            <option value="{{ cat }}" {% if request.args.get('category') == cat %}selected{% endif %}>{{ cat }}</option>
+            {% endfor %}
+          </select>
+  
+          <select name="seats" onchange="this.form.submit()">
+            <option value="">Jumlah Kursi</option>
+            {% for seat in seats_options %}
+            <option value="{{ seat }}" {% if request.args.get('seats') == seat|string %}selected{% endif %}>{{ seat }}</option>
+            {% endfor %}
+          </select>
+  
+          <select name="transmission" onchange="this.form.submit()">
+            <option value="">Transmisi</option>
+            <option value="Manual" {% if request.args.get('transmission') == "Manual" %}selected{% endif %}>Manual</option>
+            <option value="Automatic" {% if request.args.get('transmission') == "Automatic" %}selected{% endif %}>Automatic</option>
+          </select>
+  
+          <input type="number" name="min_price" placeholder="Harga Min" value="{{ request.args.get('min_price', '') }}" oninput="this.form.submit()">
+          <input type="number" name="max_price" placeholder="Harga Max" value="{{ request.args.get('max_price', '') }}" oninput="this.form.submit()">
+  
+          <select name="sort" onchange="this.form.submit()">
+            <option value="">Urutkan</option>
+            <option value="price_low" {% if request.args.get('sort') == "price_low" %}selected{% endif %}>Harga Termurah</option>
+            <option value="price_high" {% if request.args.get('sort') == "price_high" %}selected{% endif %}>Harga Tertinggi</option>
+          </select>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+
+  <div class="container">
+    {% if cars %}
+      {% for car in cars %}
+      <div class="car-card">
+        <img src="{{ url_for('static', filename=car['image_url']) }}" alt="Mobil">
+        <div class="car-details">
+          <h2>{{ car['brand'] }} {{ car['model'] }} ({{ car['year'] }})</h2>
+          <p>Kategori: {{ car['category'] }}</p>
+          <p>Transmisi: {{ car['transmission'] }}</p>
+          <p>Jumlah Kursi: {{ car['seats'] }}</p>
+          <p>Lokasi: {{ car['location'] }}</p>
+          <p class="price">Rp{{ "{:,.0f}".format(car['price']) }}/hari</p>
+          {% if session.get('user_id') and session.get('role') == 'member' %}
+          <form method="post" action="{{ url_for('rental_confirmation', car_id=car['id']) }}">
+            <input type="hidden" name="start_date" value="{{ start_date }}">
+            <input type="hidden" name="start_time" value="{{ start_time }}">
+            <input type="hidden" name="end_date" value="{{ end_date }}">
+            <input type="hidden" name="end_time" value="{{ end_time }}">
+            <button class="rent-btn" type="submit">Sewa Mobil</button>
+          </form>
+          
+          
+          {% else %}
+          <button class="rent-btn" onclick="openModal('login')">Login untuk Sewa</button>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p>Tidak ada mobil tersedia pada waktu tersebut.</p>
+    {% endif %}
+  </div>
+  
+  <footer>
+    <p>© 2025 Carpy All Right Reserved</p>
+  </footer>
+  
+  <!-- MODAL LOGIN/REGISTER -->
+<!-- Overlay Background for Login -->
+<div id="loginOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); backdrop-filter:blur(5px); z-index:1000;"></div>
+
+<!-- Modal Box Login -->
+<div id="modal-box" style="z-index:1001;">
+  <h2 id="modal-title">Login</h2>
+  <form id="modal-form" method="post">
+    <input type="text" name="username" placeholder="Username" required><br>
+    <input type="password" name="password" placeholder="Password" required><br>
+    <button type="submit">Submit</button><br>
+    <button type="button" onclick="closeModal()">Tutup</button>
+  </form>
+</div>
+
+    <!-- Overlay Background -->
+    <div id="registerOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); backdrop-filter:blur(5px); z-index:1000;"></div>
+
+    <!-- Modal Box -->
+    <div id="registerModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:white; border-radius:12px; display:none; width:700px; overflow:hidden; box-shadow:0px 8px 16px rgba(0,0,0,0.2); z-index:1001;">
+
+  <!-- Sidebar Steps -->
+  <div style="display:none; background:#f2f2f2; padding:20px; width:200px; display:flex; flex-direction:column; gap:15px;">
+    <div id="stepIndicator1" style="opacity:1; font-weight:bold;">1. Informasi Personal</div>
+    <div id="stepIndicator2" style="opacity:0.5;">2. Detail Kontak</div>
+    <div id="stepIndicator3" style="opacity:0.5;">3. Alamat</div>
+    <div id="stepIndicator4" style="opacity:0.5;">4. Akun Member</div>
+  </div>
+
+  <!-- Form Content -->
+  <div style="padding:20px; flex:1;">
+    <form id="register-form" method="post" action="{{ url_for('register') }}">
+
+      <!-- Step 1 -->
+      <div class="step step-1 active">
+        <h3>Informasi Personal</h3>
+        <label>Gender:</label><br>
+        <select name="gender" required>
+          <option value="Laki-laki">Laki-laki</option>
+          <option value="Perempuan">Perempuan</option>
+          <option value="Tidak Ingin Menyebutkan">Tidak Ingin Menyebutkan</option>
+        </select><br><br>
+
+        <label>Nama Depan:</label><br>
+        <input type="text" name="first_name" required><br><br>
+
+        <label>Nama Belakang:</label><br>
+        <input type="text" name="last_name" required><br><br>
+
+        <label>Tanggal Lahir:</label><br>
+        <input type="date" name="birth_date" required><br><br>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step step-2" style="display:none;">
+        <h3>Detail Kontak</h3>
+        <label>Email:</label><br>
+        <input type="email" name="email" required><br><br>
+
+        <label>Nomor Telepon:</label><br>
+        <select name="country_code">
+          <option value="+62">+62 (Indonesia)</option>
+          <option value="+60">+60 (Malaysia)</option>
+          <option value="+65">+65 (Singapore)</option>
+        </select>
+        <input type="text" name="phone_number" required><br><br>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step step-3" style="display:none;">
+        <h3>Alamat</h3>
+        <label>Negara:</label><br>
+        <input type="text" name="country" required><br><br>
+
+        <label>Alamat Lengkap:</label><br>
+        <textarea name="address" required></textarea><br><br>
+
+        <label>Kode Pos:</label><br>
+        <input type="text" name="postal_code" required><br><br>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="step step-4" style="display:none;">
+        <h3>Akun Member</h3>
+        <label>Username:</label><br>
+        <input type="text" name="username" required><br><br>
+
+        <label>Password:</label><br>
+        <input type="password" name="password" required><br><br>
+
+        <label>Ulangi Password:</label><br>
+        <input type="password" name="confirm_password" required><br><br>
+      </div>
+
+      <!-- Navigation Buttons -->
+      <div style="margin-top:20px;">
+        <button type="button" onclick="prevStep()" id="prevBtn" style="display:none;">Sebelumnya</button>
+        <button type="button" onclick="nextStep()" id="nextBtn">Selanjutnya</button>
+        <button type="submit" id="submitBtn" style="display:none;">Daftar</button>
+      </div>
+
+    </form>
+    <br>
+    <button onclick="closeRegisterModal()" style="padding:8px 15px; background:#E53935; color:white; border:none; border-radius:8px;">Tutup</button>
+  </div>
+    </div>
+
+  <script>
+
+document.addEventListener("DOMContentLoaded", function() {
+    fetch('/get_filter_data')
+      .then(response => response.json())
+      .then(data => {
+        const categorySelect = document.getElementById('category-filter');
+        const seatsSelect = document.getElementById('seats-filter');
+
+        data.categories.forEach(category => {
+          let option = document.createElement('option');
+          option.value = category;
+          option.textContent = category;
+          categorySelect.appendChild(option);
+        });
+
+        data.seats.forEach(seat => {
+          let option = document.createElement('option');
+          option.value = seat;
+          option.textContent = seat + " Kursi";
+          seatsSelect.appendChild(option);
+        });
+      });
+
+    // Auto-submit form saat filter berubah
+    document.getElementById('filter-form').addEventListener('change', function() {
+      fetchResults();
+    });
+
+    function fetchResults() {
+      let form = document.getElementById('filter-form');
+      let formData = new FormData(form);
+      let queryString = new URLSearchParams(formData).toString();
+      window.location.href = "{{ url_for('search_results') }}?" + queryString;
+    }
+  });
+
+
+function openSidebar() {
+    document.getElementById('sidebar').style.display = 'block';
+    setTimeout(() => {
+      document.getElementById('sidebar').classList.add('show');
+    }, 10); // Delay untuk memastikan transition bekerja
+  }
+
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('show');
+    setTimeout(() => {
+      document.getElementById('sidebar').style.display = 'none';
+    }, 300); // Sesuai dengan durasi transition
+  }
+
+  function openModal(type) {
+  document.getElementById('loginOverlay').style.display = 'block';
+  document.getElementById('modal-box').style.display = 'block';
+  document.getElementById('loginOverlay').classList.add('show');
+  document.getElementById('modal-box').classList.add('show');
+
+  if (type === 'login') {
+    document.getElementById('modal-title').innerText = 'Login';
+    document.getElementById('modal-form').action = '{{ url_for("login") }}';
+  }
+}
+
+  
+function closeModal() {
+  document.getElementById('loginOverlay').style.display = 'none';
+  document.getElementById('modal-box').style.display = 'none';
+  document.getElementById('loginOverlay').classList.remove('show');
+  document.getElementById('modal-box').classList.remove('show');
+}
+
+  
+    function openRegisterModal() {
+      document.getElementById('registerOverlay').style.display = 'block';
+      document.getElementById('registerModal').style.display = 'flex';
+    }
+  
+    function closeRegisterModal() {
+      document.getElementById('registerOverlay').style.display = 'none';
+      document.getElementById('registerModal').style.display = 'none';
+    }
+    let currentStep = 1;
+    const totalSteps = 4;
+  
+    function nextStep() {
+      const currentDiv = document.querySelector(`.step-${currentStep}`);
+      const inputs = currentDiv.querySelectorAll("input, select, textarea");
+      for (let input of inputs) {
+        if (!input.checkValidity()) {
+          input.reportValidity();
+          return;
+        }
+      }
+      if (currentStep < totalSteps) {
+        document.querySelector(`.step-${currentStep}`).style.display = 'none';
+        document.getElementById(`stepIndicator${currentStep}`).style.opacity = '1';
+        currentStep++;
+        document.querySelector(`.step-${currentStep}`).style.display = 'block';
+        document.getElementById(`stepIndicator${currentStep}`).style.opacity = '1';
+      }
+      document.getElementById('prevBtn').style.display = currentStep > 1 ? 'inline' : 'none';
+      document.getElementById('nextBtn').style.display = currentStep === totalSteps ? 'none' : 'inline';
+      document.getElementById('submitBtn').style.display = currentStep === totalSteps ? 'inline' : 'none';
+    }
+  
+    function prevStep() {
+      if (currentStep > 1) {
+        document.querySelector(`.step-${currentStep}`).style.display = 'none';
+        currentStep--;
+        document.querySelector(`.step-${currentStep}`).style.display = 'block';
+      }
+      document.getElementById('prevBtn').style.display = currentStep > 1 ? 'inline' : 'none';
+      document.getElementById('nextBtn').style.display = 'inline';
+      document.getElementById('submitBtn').style.display = 'none';
+    }
+  </script>
+</body>
+</html>

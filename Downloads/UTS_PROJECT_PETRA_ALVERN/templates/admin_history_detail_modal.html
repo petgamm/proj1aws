@@ -1,0 +1,16 @@
+<h3>Detail Transaksi</h3>
+<p><strong>Nama Penyewa:</strong> {{ detail['username'] }}</p>
+<p><strong>Email:</strong> {{ detail['email'] }}</p>
+<p><strong>Nomor Telepon:</strong> {{ detail['phone_number'] }}</p>
+<p><strong>Alamat:</strong> {{ detail['address'] }}</p>
+
+<hr>
+
+<p><strong>Mobil:</strong> {{ detail['brand'] }} {{ detail['model'] }} ({{ detail['year'] }})</p>
+<p><strong>Kategori:</strong> {{ detail['transmission'] }}, {{ detail['seats'] }} Kursi</p>
+<p><strong>Kota:</strong> {{ detail['location'] }}</p>
+<p><strong>Harga:</strong> Rp{{ "{:,.0f}".format(detail['price']) }}/hari</p>
+
+<hr>
+
+<p><strong>Tanggal Sewa:</strong> {{ detail['start_date'].strftime('%d-%m-%Y %H:%M') }} - {{ detail['end_date'].strftime('%d-%m-%Y %H:%M') }}</p>

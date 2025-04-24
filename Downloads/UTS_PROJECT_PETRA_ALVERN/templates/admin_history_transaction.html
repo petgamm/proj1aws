@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Histori Transaksi Admin - Carpy</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fa;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #007bff;
+      padding: 15px 50px;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-buttons button {
+      margin-left: 10px;
+      padding: 8px 16px;
+      background-color: white;
+      color: #007bff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 50px auto;
+      padding: 0 20px;
+    }
+
+    .filter-box {
+      background: white;
+      padding: 20px;
+      margin-bottom: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .filter-box select, .filter-box input[type="date"] {
+      padding: 10px;
+      margin-right: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    .history-card {
+      display: flex;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      overflow: hidden;
+      padding: 10px;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .history-card img {
+      width: 200px;
+      height: auto;
+      object-fit: cover;
+    }
+
+    .history-details {
+      flex: 1;
+      padding: 20px;
+    }
+
+    .history-details h3 {
+      margin: 0 0 10px;
+    }
+
+    .history-actions button {
+      padding: 10px 20px;
+      background: #007bff;
+      border: none;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 500px;
+  max-height: 90%;
+  overflow-y: auto;
+  animation: slideDown 0.4s ease;
+}
+  @keyframes slideDown {
+  from { transform: translateY(-50px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+  }
+    footer {
+      text-align: center;
+      padding: 20px;
+      background-color: #007bff;
+      color: white;
+      margin-top: 50px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h2>Histori Transaksi Admin</h2>
+  <div class="header-buttons">
+    <button onclick="window.location.href='/admin_dashboard'">Dashboard</button>
+    <form method="post" action="/logout" style="display:inline;">
+      <button type="submit">Logout</button>
+    </form>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="filter-box">
+    <form method="get" action="/admin/transaction_history" id="filterForm">
+      <select name="brand" onchange="submitFilter()">
+        <option value="">Semua Brand</option>
+        {% for b in brands %}
+        <option value="{{ b }}" {% if request.args.get('brand') == b %}selected{% endif %}>{{ b }}</option>
+        {% endfor %}
+      </select>
+    
+      <select name="city" onchange="submitFilter()">
+        <option value="">Semua Kota</option>
+        {% for city in cities %}
+        <option value="{{ city }}" {% if request.args.get('city') == city %}selected{% endif %}>{{ city }}</option>
+        {% endfor %}
+      </select>
+    
+      <input type="date" name="date" value="{{ request.args.get('date') }}" onchange="submitFilter()">
+    
+      <select name="sort" onchange="submitFilter()">
+        <option value="latest" {% if request.args.get('sort') == 'latest' %}selected{% endif %}>Terbaru</option>
+        <option value="oldest" {% if request.args.get('sort') == 'oldest' %}selected{% endif %}>Terlama</option>
+      </select>
+    </form>
+  </div>
+
+  {% if transactions %}
+    {% for trx in transactions %}
+    <div class="history-card">
+      <img src="{{ url_for('static', filename=trx['image_url']) }}" alt="Mobil">
+      <div class="history-details">
+        <h3>{{ trx['brand'] }} {{ trx['model'] }} ({{ trx['year'] }})</h3>
+        <p>Penyewa: {{ trx['username'] }} | Email: {{ trx['email'] }}</p>
+        <p>Kota: {{ trx['location'] }}</p>
+        <p>Tanggal Sewa: {{ trx['start_date'] }} - {{ trx['end_date'] }}</p>
+      </div>
+      <div class="history-actions">
+        <button onclick="openDetailModal({{ trx['rental_id'] }})">Lihat Detail</button>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <p style="text-align:center; margin-top:50px;">Belum ada transaksi selesai.</p>
+  {% endif %}
+
+</div>
+
+<!-- Modal -->
+<div id="detailModal" class="modal">
+  <div class="modal-content">
+    <div id="modalDetailContent">
+      <!-- Isi detail transaksi dimuat di sini -->
+    </div>
+    <button onclick="closeDetailModal()" style="padding: 10px 20px; background: #007bff; border: none; color: white; border-radius: 8px; cursor: pointer;">Tutup</button>
+
+  </div>
+</div>
+    <!-- AJAX load detail -->
+  </div>
+</div>
+
+<footer>
+  &copy; 2025 Carpy - Admin Panel
+</footer>
+
+<script>
+function openDetailModal(transactionId) {
+  fetch(`/admin/history_detail/${transactionId}`)
+    .then(response => response.text())
+    .then(html => {
+      document.getElementById('modalDetailContent').innerHTML = html;
+      document.getElementById('detailModal').style.display = 'flex';
+    })
+    .catch(error => {
+      alert("Gagal memuat detail!");
+      console.error(error);
+    });
+}
+
+function closeDetailModal() {
+  document.getElementById('detailModal').style.display = 'none';
+}
+function submitFilter() {
+  document.getElementById('filterForm').submit();
+}
+</script>
+
+</body>
+</html>

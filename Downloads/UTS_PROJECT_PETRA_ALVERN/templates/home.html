@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Carpy - Rental Mobil</title>
+  <style>
+    /* Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-image: url('{{ url_for('static', filename='images/bg.jpg') }}');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    body::after {
+  content: "";
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0,0,0,0.4); /* gelap 40% */
+  z-index: -1;
+}
+
+
+    /* HEADER */
+    header {
+        background-color: #007bff;
+  padding: 15px 50px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+  position: fixed; /* Fix header biar selalu di atas */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50px;
+  z-index: 2000;
+    }
+
+    header h1 {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .header-buttons button {
+      margin-left: 10px;
+      padding: 8px 16px;
+      background-color: white;
+      color: #007bff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .header-buttons button:hover {
+      background-color: #e0e0e0;
+    }
+
+    /* MAIN FORM */
+ /* Container Utama */
+.container {
+    display: flex;
+  width: 80%;
+  max-width: 1200px;
+  margin: 50px auto;
+  background-color: #fff;
+  border-radius: 20px;
+  box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+/* Bagian Slideshow - 40% */
+.slideshow-container {
+  flex: 4;
+  position: relative;
+  width: 100%;
+  height: 700px; /* adjust tinggi sesuai kebutuhan */
+  overflow: hidden;
+  background-color: #f2f2f2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;min-height: 350px; /* Tambahkan tinggi minimum biar gak collapse */
+}
+
+.slides {
+    display: none;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+ 
+
+.slides.active {
+    display: block;
+  opacity: 1;
+  position: relative;
+}
+.slides img {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  object-fit: cover;
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
+  transition: opacity 0.8s ease-in-out;
+
+}
+
+/* Tombol Navigasi */
+.prev, .next {
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  width: auto;
+  padding: 16px;
+  margin-top: -22px;
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  transition: 0.6s ease;
+  border-radius: 0 3px 3px 0;
+  user-select: none;
+}
+
+.next {
+  right: 0;
+  border-radius: 3px 0 0 3px;
+}
+
+.prev {
+  left: 0;
+  border-radius: 3px 0 0 3px;
+}
+
+/* Bagian Form Pencarian - 60% */
+.search-container {
+    flex: 6;
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+
+.search-container h2 {
+  margin-bottom: 25px;
+  color: #333;
+  font-size: 26px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #555;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  transition: 0.3s;
+  background-color: #f9f9f9;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #007bff;
+  background-color: #fff;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0,123,255,0.5);
+}
+
+/* Tombol Stylish */
+.search-container button {
+  width: 9em;
+  height: 3em;
+  border-radius: 30em;
+  font-size: 15px;
+  font-family: inherit;
+  border: none;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  box-shadow: 6px 6px 12px #c5c5c5,
+              -6px -6px 12px #ffffff;
+  transition: 0.3s;
+  margin-top: 25px;
+  align-self: center;
+}
+
+.search-container button::before {
+  content: '';
+  width: 0;
+  height: 3em;
+  border-radius: 30em;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-image: linear-gradient(to right, #235fe0 0%, #a6f76f 100%);
+  transition: .5s ease;
+  display: block;
+  z-index: -1;
+}
+
+
+.search-container button:hover::before {
+  width: 9em;
+}
+
+
+
+
+    /* FOOTER */
+    footer {
+      margin-top: 100px;
+      background-color: #007bff;
+      color: white;
+      text-align: center;
+      padding: 15px 0;
+    }
+
+    /* MODAL OVERLAY LOGIN/REGISTER */
+    #overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(5px);
+      z-index: 1000;
+    }
+
+    #modal-box {
+      display: none;
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      z-index: 1001;
+      width: 300px;
+      text-align: center;
+    }
+
+    #modal-box input {
+      width: 90%;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    #modal-box button {
+      padding: 8px 15px;
+      margin-top: 10px;
+      border: none;
+      background-color: #007bff;
+      color: white;
+      border-radius: 8px;
+    }
+    .hamburger-btn {
+  background: none;
+  border: none;
+  font-size: 15px;    /* Ukuran icon */
+  color: white;
+  cursor: pointer;
+  padding: 2px 4px;   /* Supaya gak kegedean */
+  margin-left: 5px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+    }
+    .hamburger-btn:hover {
+  background-color: rgba(255,255,255,0.2); /* Biar ada efek hover */
+}
+
+
+    #sidebar {
+        position: fixed;
+  top: 70px; /* Biarkan pas mulai setelah header */
+  right: 0;
+  width: 250px;
+  height: 100%;
+  background-color: white;
+  box-shadow: -2px 0 10px rgba(0,0,0,0.2);
+  z-index: 1500; /* Lebih rendah dari header */
+  padding: 20px;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+}
+
+    #sidebar.show {
+        transform: translateX(0);
+}
+
+  </style>
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <h1>Carpy</h1>
+    <div class="header-buttons">
+        {% if session.get('user_id') %}
+        <div style="display: flex; align-items: center;">
+          <span style="margin-right:10px;">Halo, {{ session.get('username') }}</span>
+          <button onclick="openSidebar()" class="hamburger-btn">☰</button>
+        </div>
+      {% else %}
+        <button onclick="openModal('login')">Login</button>
+        <button onclick="openRegisterModal()">Register</button>
+      {% endif %}
+    </div>
+  </header>
+
+  <!-- MAIN FORM -->
+  <div class="container">
+    <!-- Bagian Slideshow - 40% -->
+    <div class="slideshow-container">
+      <div class="slides fade">
+        <img src="{{ url_for('static', filename='images/slide1.jpg') }}" alt="Gambar 1">
+      </div>
+      <div class="slides fade">
+        <img src="{{ url_for('static', filename='images/slide2.jpg') }}" alt="Gambar 2">
+      </div>
+      <div class="slides fade">
+        <img src="{{ url_for('static', filename='images/slide3.jpg') }}" alt="Gambar 3">
+      </div>
+      <div class="slides fade">
+        <img src="{{ url_for('static', filename='images/slide4.jpg') }}" alt="Gambar 4">
+      </div>
+      <div class="slides fade">
+        <img src="{{ url_for('static', filename='images/slide5.jpg') }}" alt="Gambar 5">
+      </div>
+      <!-- Tombol Navigasi -->
+      <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+      <a class="next" onclick="plusSlides(1)">&#10095;</a>
+    </div>
+  
+    <!-- Bagian Form Pencarian - 60% -->
+    <div class="search-container">
+      <h2>Cari Mobil Tersedia</h2>
+      <form method="post">
+        <div class="form-group">
+          <label for="location">Lokasi:</label>
+          <select id="location" name="location" required>
+            {% for loc in locations %}
+            <option value="{{ loc['location'] }}">{{ loc['location'] }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="start_date">Tanggal Mulai:</label>
+          <input type="date" id="start_date" name="start_date" required>
+        </div>
+        <div class="form-group">
+          <label for="start_time">Jam Mulai:</label>
+          <input type="time" id="start_time" name="start_time" required>
+        </div>
+        <div class="form-group">
+          <label for="end_date">Tanggal Selesai:</label>
+          <input type="date" id="end_date" name="end_date" required>
+        </div>
+        <div class="form-group">
+          <label for="end_time">Jam Selesai:</label>
+          <input type="time" id="end_time" name="end_time" required>
+        </div>
+        <button type="submit">Cari Mobil</button>
+      </form>
+    </div>
+  </div>
+  
+  <div id="sidebar" style="display:none; position:fixed; top:0; right:0; width:250px; height:100%; background-color:white; box-shadow:-2px 0 10px rgba(0,0,0,0.2); z-index:2000; padding:20px; transition:0.3s;">
+    <div style="font-weight:bold; margin-bottom:20px;">{{ session.get('username') }}</div>
+    <ul style="list-style:none; padding:0;">
+      <li style="margin-bottom:15px;"><a href="/profile">Profile</a></li>
+      <li style="margin-bottom:15px;"><a href="/history">Histori Transaksi</a></li>
+    </ul>
+    <form method="post" action="{{ url_for('logout') }}">
+      <button type="submit" style="margin-top:30px; background:#E53935; color:white; border:none; padding:10px 20px; border-radius:8px;">Logout</button>
+    </form>
+    <button onclick="closeSidebar()" style="position:absolute; top:10px; right:10px; background:none; border:none; font-size:20px;">&times;</button>
+  </div>
+  
+
+  <!-- FOOTER -->
+  <footer>
+    &copy; 2025 Carpy - Rental Mobil
+  </footer>
+
+  <!-- MODAL LOGIN/REGISTER -->
+  <div id="overlay"></div>
+
+  <div id="modal-box">
+    <h2 id="modal-title">Login</h2>
+    <form id="modal-form" method="post">
+      <input type="text" name="username" placeholder="Username" required><br>
+      <input type="password" name="password" placeholder="Password" required><br>
+      <button type="submit">Submit</button><br>
+      <button type="button" onclick="closeModal()">Tutup</button>
+    </form>
+  </div>
+    <!-- Overlay Background -->
+    <div id="registerOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); backdrop-filter:blur(5px); z-index:1000;"></div>
+
+    <!-- Modal Box -->
+    <div id="registerModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:white; border-radius:12px; display:none; width:700px; overflow:hidden; box-shadow:0px 8px 16px rgba(0,0,0,0.2); z-index:1001;">
+
+  <!-- Sidebar Steps -->
+  <div style="display:none; background:#f2f2f2; padding:20px; width:200px; display:flex; flex-direction:column; gap:15px;">
+    <div id="stepIndicator1" style="opacity:1; font-weight:bold;">1. Informasi Personal</div>
+    <div id="stepIndicator2" style="opacity:0.5;">2. Detail Kontak</div>
+    <div id="stepIndicator3" style="opacity:0.5;">3. Alamat</div>
+    <div id="stepIndicator4" style="opacity:0.5;">4. Akun Member</div>
+  </div>
+
+  <!-- Form Content -->
+  <div style="padding:20px; flex:1;">
+    <form id="register-form" method="post" action="{{ url_for('register') }}">
+
+      <!-- Step 1 -->
+      <div class="step step-1 active">
+        <h3>Informasi Personal</h3>
+        <label>Gender:</label><br>
+        <select name="gender" required>
+          <option value="Laki-laki">Laki-laki</option>
+          <option value="Perempuan">Perempuan</option>
+          <option value="Tidak Ingin Menyebutkan">Tidak Ingin Menyebutkan</option>
+        </select><br><br>
+
+        <label>Nama Depan:</label><br>
+        <input type="text" name="first_name" required><br><br>
+
+        <label>Nama Belakang:</label><br>
+        <input type="text" name="last_name" required><br><br>
+
+        <label>Tanggal Lahir:</label><br>
+        <input type="date" name="birth_date" required><br><br>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step step-2" style="display:none;">
+        <h3>Detail Kontak</h3>
+        <label>Email:</label><br>
+        <input type="email" name="email" required><br><br>
+
+        <label>Nomor Telepon:</label><br>
+        <select name="country_code">
+          <option value="+62">+62 (Indonesia)</option>
+          <option value="+60">+60 (Malaysia)</option>
+          <option value="+65">+65 (Singapore)</option>
+        </select>
+        <input type="text" name="phone_number" required><br><br>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step step-3" style="display:none;">
+        <h3>Alamat</h3>
+        <label>Negara:</label><br>
+        <input type="text" name="country" required><br><br>
+
+        <label>Alamat Lengkap:</label><br>
+        <textarea name="address" required></textarea><br><br>
+
+        <label>Kode Pos:</label><br>
+        <input type="text" name="postal_code" required><br><br>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="step step-4" style="display:none;">
+        <h3>Akun Member</h3>
+        <label>Username:</label><br>
+        <input type="text" name="username" required><br><br>
+
+        <label>Password:</label><br>
+        <input type="password" name="password" required><br><br>
+
+        <label>Ulangi Password:</label><br>
+        <input type="password" name="confirm_password" required><br><br>
+      </div>
+
+      <!-- Navigation Buttons -->
+      <div style="margin-top:20px;">
+        <button type="button" onclick="prevStep()" id="prevBtn" style="display:none;">Sebelumnya</button>
+        <button type="button" onclick="nextStep()" id="nextBtn">Selanjutnya</button>
+        <button type="submit" id="submitBtn" style="display:none;">Daftar</button>
+      </div>
+
+    </form>
+    <br>
+    <button onclick="closeRegisterModal()" style="padding:8px 15px; background:#E53935; color:white; border:none; border-radius:8px;">Tutup</button>
+  </div>
+    </div>
+
+
+  <!-- JS -->
+  <script>
+    // ------ Modal Control ------
+
+    function openSidebar() {
+  let sidebar = document.getElementById('sidebar');
+  sidebar.style.display = 'block';
+  setTimeout(() => { // delay biar transition smooth
+    sidebar.classList.add('show');
+  }, 10);
+}
+
+
+function closeSidebar() {
+  let sidebar = document.getElementById('sidebar');
+  sidebar.classList.remove('show');
+  setTimeout(() => {
+    sidebar.style.display = 'none';
+  }, 300); // tunggu animasi selesai
+}
+
+    function openModal(type) {
+      document.getElementById('overlay').style.display = 'block';
+      document.getElementById('modal-box').style.display = 'block';
+      if (type === 'login') {
+        document.getElementById('modal-title').innerText = 'Login';
+        document.getElementById('modal-form').action = '{{ url_for("login") }}';
+      }
+    }
+  
+    function closeModal() {
+      document.getElementById('overlay').style.display = 'none';
+      document.getElementById('modal-box').style.display = 'none';
+    }
+  
+    function openRegisterModal() {
+      document.getElementById('registerOverlay').style.display = 'block';
+      document.getElementById('registerModal').style.display = 'flex';
+    }
+  
+    function closeRegisterModal() {
+      document.getElementById('registerOverlay').style.display = 'none';
+      document.getElementById('registerModal').style.display = 'none';
+    }
+  
+    // -------------- Multi-step Register --------------
+    let currentStep = 1;
+    const totalSteps = 4;
+  
+    function nextStep() {
+      const currentDiv = document.querySelector(`.step-${currentStep}`);
+      const inputs = currentDiv.querySelectorAll("input, select, textarea");
+      for (let input of inputs) {
+        if (!input.checkValidity()) {
+          input.reportValidity();
+          return;
+        }
+      }
+      if (currentStep < totalSteps) {
+        document.querySelector(`.step-${currentStep}`).style.display = 'none';
+        document.getElementById(`stepIndicator${currentStep}`).style.opacity = '1';
+        currentStep++;
+        document.querySelector(`.step-${currentStep}`).style.display = 'block';
+        document.getElementById(`stepIndicator${currentStep}`).style.opacity = '1';
+      }
+      document.getElementById('prevBtn').style.display = currentStep > 1 ? 'inline' : 'none';
+      document.getElementById('nextBtn').style.display = currentStep === totalSteps ? 'none' : 'inline';
+      document.getElementById('submitBtn').style.display = currentStep === totalSteps ? 'inline' : 'none';
+    }
+  
+    function prevStep() {
+      if (currentStep > 1) {
+        document.querySelector(`.step-${currentStep}`).style.display = 'none';
+        currentStep--;
+        document.querySelector(`.step-${currentStep}`).style.display = 'block';
+      }
+      document.getElementById('prevBtn').style.display = currentStep > 1 ? 'inline' : 'none';
+      document.getElementById('nextBtn').style.display = 'inline';
+      document.getElementById('submitBtn').style.display = 'none';
+    }
+
+    let slideIndex = 0;
+showSlides();
+
+function showSlides() {
+  let slides = document.getElementsByClassName("slides");
+  for (let i = 0; i < slides.length; i++) {
+    slides[i].classList.remove("active");
+  }
+  slideIndex++;
+  if (slideIndex > slides.length) { slideIndex = 1; }
+  slides[slideIndex - 1].classList.add("active");
+  setTimeout(showSlides, 8000); // ganti gambar tiap 3 detik
+}
+
+function plusSlides(n) {
+  let slides = document.getElementsByClassName("slides");
+  slideIndex += n - 1;
+  if (slideIndex < 1) { slideIndex = slides.length; }
+  if (slideIndex > slides.length) { slideIndex = 1; }
+  for (let i = 0; i < slides.length; i++) {
+    slides[i].classList.remove("active");
+  }
+  slides[slideIndex - 1].classList.add("active");
+}
+
+  
+    // ------------------ THIS PART: CONDITIONAL ------------------
+    window.onload = function() {
+      var registerError = "{{ register_error|default('') }}";
+      var loginError = "{{ login_error|default('') }}";
+  
+      if (registerError.trim() !== "") {
+        openRegisterModal();
+      }
+  
+      if (loginError.trim() !== "") {
+        openModal('login');
+      }
+    };
+  </script>
+</body>
+</html>

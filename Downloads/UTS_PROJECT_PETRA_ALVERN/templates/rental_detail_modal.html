@@ -1,0 +1,48 @@
+<div style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); backdrop-filter:blur(5px); display:flex; align-items:center; justify-content:center; z-index:1000;">
+    <div style="background:white; padding:20px; border-radius:12px; width:500px; max-height:90%; overflow-y:auto; box-shadow:0 4px 12px rgba(0,0,0,0.2);">
+      
+      <h2 style="text-align:center;">Detail Penyewaan</h2>
+  
+      <!-- Info Penyewa -->
+      <h4>Data Penyewa</h4>
+      <p><strong>Nama:</strong> {{ detail.username }}</p>
+      <p><strong>Email:</strong> {{ detail.email }}</p>
+      <p><strong>No HP:</strong> {{ detail.phone_number }}</p>
+      <p><strong>Alamat:</strong> {{ detail.address }}</p>
+  
+      <!-- Info Mobil -->
+      <h4>Detail Mobil</h4>
+      <p><strong>Brand:</strong> {{ detail.brand }}</p>
+      <p><strong>Model:</strong> {{ detail.model }} ({{ detail.year }})</p>
+      <p><strong>Transmisi:</strong> {{ detail.transmission }}</p>
+      <p><strong>Jumlah Kursi:</strong> {{ detail.seats }}</p>
+      <img src="{{ url_for('static', filename=detail.image_url) }}" alt="Mobil" style="width:100%; margin:10px 0; border-radius:8px;">
+  
+      <!-- Info Penyewaan -->
+      <h4>Informasi Penyewaan</h4>
+      <p><strong>Mulai:</strong> {{ detail.start_date }}</p>
+      <p><strong>Berakhir:</strong> {{ detail.end_date }}</p>
+      <p><strong>Status Saat Ini:</strong> {{ detail.status }}</p>
+  
+      <!-- Update Status -->
+      <form method="post" action="{{ url_for('update_rental_status', rental_id=detail.rental_id) }}">
+        <label>Ubah Status:</label>
+        <select name="new_status" required>
+          {% if status == 'pending' %}
+            <option value="approved">Setujui</option>
+            <option value="rejected">Tolak</option>
+          {% elif status == 'approved' %}
+            <option value="ongoing">Sedang Disewa</option>
+            <option value="rejected">Batalkan Sewa</option>
+          {% elif status == 'ongoing' %}
+            <option value="completed">Akhiri Sewa</option>
+          {% endif %}
+        </select><br><br>
+        <button type="submit" style="padding:8px 15px; background:#4CAF50; color:white; border:none; border-radius:8px;">Simpan Status</button>
+      </form>
+  
+      <br>
+      <button onclick="closeRentalDetail()" style="padding:8px 15px; background:#E53935; color:white; border:none; border-radius:8px;">Tutup</button>
+    </div>
+  </div>
+  

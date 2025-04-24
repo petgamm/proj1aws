@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #007bff;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+    .header-buttons {
+      display: flex;
+      gap: 15px;
+    }
+    .header-buttons button {
+      background-color: white;
+      color: #007bff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+    .header-buttons button:hover {
+      background-color: #e0e0e0;
+    }
+    footer {
+      background-color: #007bff;
+      color: white;
+      text-align: center;
+      padding: 15px 0;
+      margin-top: 50px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 30px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .container h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .add-car-form {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+    .add-car-form input, .add-car-form select {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    .add-car-form button {
+      grid-column: span 2;
+      background-color: #28a745;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+    .add-car-form button:hover {
+      background-color: #218838;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 30px;
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #eee;
+      text-align: left;
+    }
+    th {
+      background-color: #007BFF;
+      color: white;
+    }
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+    img {
+      max-width: 80px;
+      border-radius: 8px;
+    }
+    .modal {
+  display: none;
+}
+.edit-btn {
+  background-color: #17a2b8;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 5px;
+  transition: 0.3s ease;
+}
+
+.edit-btn:hover {
+  background-color: #138496;
+}
+
+.delete-btn {
+  background-color: #dc3545;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 5px;
+  transition: 0.3s ease;
+}
+
+.delete-btn:hover {
+  background-color: #c82333;
+}
+
+.price-input {
+  width: 100px;
+  padding: 5px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-bottom: 5px;
+}
+
+
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Admin Dashboard</h1>
+    <div class="header-buttons">
+      <form method="post" action="{{ url_for('logout') }}">
+        <button type="submit">Logout</button>
+      </form>
+      <a href="{{ url_for('admin_transaction_history') }}"><button>Histori Penyewaan</button></a>
+
+    </div>
+  </header>
+
+  <div class="container">
+    <h2>Tambah Mobil</h2>
+    <form class="add-car-form" method="post" action="{{ url_for('add_car') }}" enctype="multipart/form-data">
+      <input type="text" name="brand" placeholder="Brand" required>
+      <input type="text" name="model" placeholder="Model" required>
+      <input type="number" name="year" placeholder="Tahun" required>
+      <input type="text" name="category" placeholder="Kategori" required>
+      <select name="transmission" required>
+        <option value="Manual">Manual</option>
+        <option value="Automatic">Automatic</option>
+      </select>
+      <input type="number" name="seats" placeholder="Kursi" required>
+      <input type="number" name="price" placeholder="Harga" required>
+      <input type="text" name="location" placeholder="Lokasi" required>
+      <select name="availability_status" required>
+        <option value="Available">Available</option>
+        <option value="Unavailable">Unavailable</option>
+      </select>
+      <input type="file" name="image" accept="image/*" required>
+      <button type="submit">Tambah Mobil</button>
+    </form>
+  </div>
+
+  <h2>Daftar Mobil</h2>
+  <table>
+    <tr>
+      <th>Gambar</th>
+      <th>Brand</th>
+      <th>Model</th>
+      <th>Tahun</th>
+      <th>Kategori</th>
+      <th>Harga</th>
+      <th>Transmisi</th>
+      <th>Kursi</th>
+      <th>Status</th>
+      <th>Aksi</th>
+    </tr>
+    {% for car in cars %}
+    <tr>
+      <td><img src="{{ url_for('static', filename=car['image_url']) }}" alt="Mobil"></td>
+      <td>{{ car['brand'] }}</td>
+      <td>{{ car['model'] }}</td>
+      <td>{{ car['year'] }}</td>
+      <td>{{ car['category'] }}</td>
+      <td>Rp{{ "{:,.0f}".format(car['price']) }}</td>
+      <td>{{ car['transmission'] }}</td>
+      <td>{{ car['seats'] }}</td>
+      <td>
+        <form method="post" action="{{ url_for('edit_car', car_id=car['id']) }}" enctype="multipart/form-data">
+          <select name="availability_status">
+            <option value="Available" {% if car['availability_status'] == 'Available' %}selected{% endif %}>Available</option>
+            <option value="Unavailable" {% if car['availability_status'] == 'Unavailable' %}selected{% endif %}>Unavailable</option>
+          </select>
+          <button type="submit" style="padding: 10px 20px; background: #007bff; border: none; color: white; border-radius: 8px; cursor: pointer;">Simpan</button>
+        </form>
+      </td>
+      <td>
+        <form method="post" action="{{ url_for('edit_car', car_id=car['id']) }}" enctype="multipart/form-data">
+          <input class="price-input" type="number" name="price" placeholder="Harga Baru" required><br>
+          <input type="file" name="image" accept="image/*"><br>
+          <button class="edit-btn" type="submit">Edit</button>
+        </form>
+        <form method="post" action="{{ url_for('delete_car', car_id=car['id']) }}">
+          <button class="delete-btn" type="submit" onclick="return confirm('Yakin ingin menghapus mobil ini?')">Hapus</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+      
+
+
+<h2>Persetujuan Penyewaan</h2>
+<table>
+  <tr>
+    <th>Tanggal Permintaan</th>
+    <th>Nama Penyewa</th>
+    <th>Model Mobil</th>
+    <th>Mulai</th>
+    <th>Selesai</th>
+    <th>Aksi</th>
+  </tr>
+  {% for rental in pending_rentals %}
+  <tr>
+    <td>{{ rental['request_date'] }}</td>
+    <td>{{ rental['username'] }}</td>
+    <td>{{ rental['model'] }}</td>
+    <td>{{ rental['start_date'] }}</td>
+    <td>{{ rental['end_date'] }}</td>
+    <td>
+        <button onclick="openRentalDetail({{ rental['id'] }}, 'pending')">Detail</button>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+
+<h2>Jadwal Penyewaan</h2>
+<table>
+  <tr>
+    <th>Tanggal Permintaan</th>
+    <th>Nama Penyewa</th>
+    <th>Model Mobil</th>
+    <th>Mulai</th>
+    <th>Selesai</th>
+    <th>Aksi</th>
+  </tr>
+  {% for rental in scheduled_rentals %}
+  <tr>
+    <td>{{ rental['request_date'] }}</td>
+    <td>{{ rental['username'] }}</td>
+    <td>{{ rental['model'] }}</td>
+    <td>{{ rental['start_date'] }}</td>
+    <td>{{ rental['end_date'] }}</td>
+    <td>
+      <button onclick="openRentalDetail({{ rental['id'] }}, 'approved')">Detail</button>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+
+<h2>Penyewaan Berlangsung</h2>
+<table>
+  <tr>
+    <th>Nama Penyewa</th>
+    <th>Model Mobil</th>
+    <th>Mulai</th>
+    <th>Selesai</th>
+    <th>Aksi</th>
+  </tr>
+  {% for rental in ongoing_rentals %}
+  <tr>
+    <td>{{ rental['username'] }}</td>
+    <td>{{ rental['model'] }}</td>
+    <td>{{ rental['start_date'] }}</td>
+    <td>{{ rental['end_date'] }}</td>
+    <td>
+      <button onclick="openRentalDetail({{ rental['id'] }}, 'ongoing')">Detail</button>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+
+<!-- Modal Wrapper -->
+<div id="rentalDetailModal" class="modal">
+    <div class="modal-content">
+      <div id="rentalDetailContent">
+        <!-- AJAX load content here -->
+      </div>
+      <br>
+      <button onclick="closeRentalDetail()">Tutup</button>
+    </div>
+  </div>
+
+  <script>
+    function openRentalDetail(rentalId, status) {
+      fetch(`/get_rental_detail/${rentalId}/${status}`)
+        .then(response => response.text())
+        .then(html => {
+          document.getElementById('rentalDetailContent').innerHTML = html;
+          document.getElementById('rentalDetailModal').style.display = 'flex';
+        })
+        .catch(error => {
+          alert("Gagal memuat detail!");
+          console.error(error);
+        });
+    }
+
+    function closeRentalDetail() {
+      document.getElementById('rentalDetailModal').style.display = 'none';
+    }
+
+  </script>
+
+  <footer>
+    <p>&copy; 2025 Carpy Rental - Admin Panel</p>
+  </footer>
+
+</body>
+</html>

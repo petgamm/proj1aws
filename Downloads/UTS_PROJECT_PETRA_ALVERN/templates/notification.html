@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Notifikasi Penyewaan</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        th { background-color: #f2f2f2; }
+        a { text-decoration: none; color: blue; }
+    </style>
+</head>
+<body>
+    <h1>Riwayat Penyewaan Anda</h1>
+    <table>
+        <tr>
+            <th>No</th>
+            <th>Mobil</th>
+            <th>Status</th>
+            <th>Tanggal Mulai</th>
+            <th>Tanggal Selesai</th>
+        </tr>
+        {% for n in notifications %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ n['brand'] }} {{ n['model'] }}</td>
+            <td>{{ n['status'] }}</td>
+            <td>{{ n['start_date'] }}</td>
+            <td>{{ n['end_date'] }}</td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="5">Belum ada penyewaan.</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <br>
+    <a href="{{ url_for('user_dashboard') }}">Kembali ke Dashboard</a>
+</body>
+</html>

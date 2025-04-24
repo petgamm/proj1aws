@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .car-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .car-card {
+            border: 1px solid #ccc;
+            padding: 15px;
+            width: 250px;
+            text-align: center;
+            border-radius: 10px;
+            box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+            background-color: #f9f9f9;
+        }
+        .car-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+        form {
+            margin-top: 10px;
+        }
+        button {
+            padding: 8px 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        label {
+            display: block;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    
+    <a href="{{ url_for('notification') }}" class="button">Notifikasi</a>
+
+    <h1>Daftar Mobil Tersedia</h1>
+
+    <form method="get" action="{{ url_for('user_dashboard') }}">
+        <label>Brand:</label>
+        <select name="brand">
+            <option value="all">Semua</option>
+            <option value="Toyota">Toyota</option>
+            <option value="Honda">Honda</option>
+            <!-- tambah brand lainnya -->
+        </select>
+    
+        <label>Kategori:</label>
+        <select name="category">
+            <option value="all">Semua</option>
+            <option value="SUV">SUV</option>
+            <option value="Sedan">Sedan</option>
+            <!-- tambah kategori lainnya -->
+        </select>
+    
+        <label>Tahun:</label>
+        <input type="number" name="year" placeholder="Contoh: 2020">
+    
+        <label>Harga Minimum:</label>
+        <input type="number" name="min_price" placeholder="Rp Min">
+    
+        <label>Harga Maksimum:</label>
+        <input type="number" name="max_price" placeholder="Rp Max">
+    
+        <label>Urutkan:</label>
+        <select name="sort">
+            <option value="">Default</option>
+            <option value="az">A-Z</option>
+            <option value="za">Z-A</option>
+            <option value="price_low">Harga Terendah</option>
+            <option value="price_high">Harga Tertinggi</option>
+        </select>
+    
+        <button type="submit">Terapkan</button>
+    </form>
+    
+    <div class="car-container">
+        {% for car in cars %}
+            <div class="car-card">
+                {% if car['image_url'] %}
+                    <img src="{{ url_for('static', filename=car['image_url']) }}" alt="Mobil">
+                {% else %}
+                    <img src="{{ url_for('static', filename='default.jpg') }}" alt="Mobil">
+                {% endif %}
+                <p><strong>{{ car['brand'] }} {{ car['model'] }}</strong> ({{ car['category'] }})</p>
+                <p>Tahun: {{ car['year'] }}</p>
+                <p>
+                    {% if car['price'] %}
+                        Rp{{ "{:,.0f}".format(car['price']) }}/hari
+                    {% else %}
+                        Harga tidak tersedia
+                    {% endif %}
+                </p>
+
+                <!-- Form untuk menyewa mobil -->
+                <form method="post" action="{{ url_for('rent_car', car_id=car['id']) }}">
+                    <label>Tanggal Mulai:</label>
+                    <input type="date" name="start_date" required>
+                    
+                    <label>Tanggal Selesai:</label>
+                    <input type="date" name="end_date" required>
+                    <p></p>
+                    <button type="submit">Sewa Mobil</button>
+                </form>
+            </div>
+        {% else %}
+            <p>Tidak ada mobil tersedia.</p>
+        {% endfor %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manajemen Mobil</title>
+</head>
+<body>
+    <h1>Daftar Mobil</h1>
+    <form method="post" action="{{ url_for('add_car') }}">
+        <input type="text" name="brand" placeholder="Brand" required>
+        <input type="text" name="model" placeholder="Model" required>
+        <input type="text" name="category" placeholder="Kategori" required>
+        <button type="submit">Tambah Mobil</button>
+    </form>
+    <ul>
+        {% for car in cars %}
+            <li>{{ car[1] }} - {{ car[2] }} ({{ car[3] }}) <a href="{{ url_for('delete_car', id=car[0]) }}">Hapus</a></li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
